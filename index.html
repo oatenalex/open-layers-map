@@ -1,1 +1,80 @@
-<h1>hello</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Map - Class Hometowns</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css">
+  <style>
+    .map {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="map" class="map"></div>
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+  <script>
+    const iconSize = {
+      small: [32, 32],
+      medium: [64, 64],
+      large: [96, 96]
+    };
+
+    const iconStyle = function(size) {
+      return new ol.style.Style({
+        image: new ol.style.Icon({
+          src: `./img/icon_${size}.png`,
+          size: iconSize[size]
+        })
+      });
+    };
+
+    const calPoly = ol.proj.fromLonLat([-120.6625, 35.3004]);
+
+    const createPoint = function(coordinates, size) {
+      return new ol.Feature({
+        geometry: new ol.geom.Point(coordinates),
+        style: iconStyle(size)
+      });
+    };
+
+    // Example data of hometowns
+    const hometownData = [
+      { lon: -119.6982, lat: 34.4208, size: 'small' },  // Santa Barbara
+      { lon: -120.6596, lat: 35.2828, size: 'medium' }, // San Luis Obispo
+      { lon: -120.6596, lat: 35.2828, size: 'medium' }, // San Luis Obispo
+      { lon: -117.1611, lat: 32.7157, size: 'large' },  // San Diego
+      { lon: -117.1611, lat: 32.7157, size: 'large' },  // San Diego
+      { lon: -117.1611, lat: 32.7157, size: 'large' }   // San Diego
+    ];
+
+    const hometownFeatures = hometownData.map(({ lon, lat, size }) => createPoint(ol.proj.fromLonLat([lon, lat]), size));
+
+    const vectorSource = new ol.source.Vector({
+      features: hometownFeatures
+    });
+
+    const vectorLayer = new ol.layer.Vector({
+      source: vectorSource,
+      style: function(feature) {
+        return feature.get('style');
+      }
+    });
+
+    const map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        }),
+        vectorLayer
+        ],
+  view: new ol.View({
+    center: calPoly,
+    zoom: 5
+  })
+});
+  </script>
+</body>
+</html>
